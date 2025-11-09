@@ -2,3 +2,29 @@
 .cursor/
 bmad/
 world-racers-main/
+
+# Personal data - DO NOT COMMIT
+data/
+*.vcf
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+saves/
+.venv/
