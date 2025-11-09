@@ -1,0 +1,16 @@
+# Core dependencies for contacts_exporter.py
+vobject>=0.9.6.1        # Parse VCF/vCard files
+python-dateutil>=2.8.2  # Date parsing
+emoji>=2.8.0            # Emoji handling
+
+# Game engine dependencies
+openai>=1.0.0           # OpenAI API for LLM
+pydantic>=2.0.0         # Data models and validation
+vaderSentiment>=3.3.2   # Sentiment analysis
+python-dotenv>=1.0.0    # Environment variables
+
+# Note: contacts_exporter.py also requires 'imessage-exporter' 
+# which must be installed via Cargo (Rust):
+# cargo install imessage-exporter
+#
+# The exporter also needs macOS with Full Disk Access for Terminal

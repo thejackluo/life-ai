@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import emoji
 
 # Import LLM processing functionality from modular structure
-from llm_processor import (
+from .llm_processor import (
     set_privacy_enabled, 
     create_llm_master_files,
     optimize_messages_for_llm,
