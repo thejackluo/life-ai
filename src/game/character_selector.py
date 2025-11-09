@@ -167,8 +167,8 @@ class CharacterSelector:
     
     def interactive_selection(
         self, 
-        min_characters: int = 5, 
-        max_characters: int = 10,
+        min_characters: int = 1, 
+        max_characters: int = 20,
         default_count: int = 8
     ) -> List[ContactData]:
         """
@@ -185,7 +185,7 @@ class CharacterSelector:
         print("\n" + "🎭 " * 20)
         print("\n  LIFE AI - CHARACTER SELECTION")
         print("\n  Choose which contacts to bring into your game.")
-        print(f"  Select {min_characters}-{max_characters} characters.\n")
+        print(f"  Select at least {min_characters}, up to {max_characters} characters.\n")
         print("🎭 " * 20)
         
         selected_contacts: List[ContactData] = []

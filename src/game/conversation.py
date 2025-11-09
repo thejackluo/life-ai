@@ -12,6 +12,11 @@ from src.core.models import GameState, Character, Conversation, Message
 from src.core.llm import get_character_response
 from src.core.sentiment import get_analyzer
 
+# Type checking import to avoid circular dependency
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.core.memory_models import MemoryCluster
+
 
 def have_conversation(game_state: GameState, character: Character) -> None:
     """
@@ -80,17 +85,17 @@ def have_conversation(game_state: GameState, character: Character) -> None:
         print(f"\n  {character.name}: ", end='', flush=True)
         
         try:
-            # Add relationship context for more dynamic responses
-            rel_context = _build_relationship_context(character, conversation)
+            # Build message-grounded context
+            context = _build_message_grounded_context(character, conversation)
             
             response = get_character_response(
                 character_name=character.name,
-                personality=character.personality_summary,
-                style=character.communication_style,
+                personality=character.personality_brief,
+                style=character.relationship_context,  # Using context as "style" field
                 history=conv_history,
                 player_msg=player_input,
                 rel_level=character.relationship.level.value,
-                context=rel_context
+                context=context
             )
             
             # Type out response (simulated typing effect)
@@ -218,6 +223,36 @@ def _generate_goodbye_message(character: Character) -> str:
     
     idx = hash(character.name) % len(goodbyes)
     return goodbyes[idx]
+
+
+def _build_message_grounded_context(character: Character, conversation: Conversation) -> str:
+    """
+    Build context using ACTUAL MESSAGE EXAMPLES.
+    This is the key to authenticity.
+    
+    Args:
+        character: Character with message examples
+        conversation: Current conversation
+        
+    Returns:
+        Context with real message examples
+    """
+    context_parts = []
+    
+    # Show actual message examples
+    if character.message_examples:
+        examples_text = character.get_message_examples_text()
+        context_parts.append(f"HOW YOU ACTUALLY TEXT (study these real examples):\n\n{examples_text}")
+    
+    # Add current mood if different from neutral
+    if character.current_mood != "neutral":
+        context_parts.append(f"\nCURRENT MOOD: {character.current_mood}")
+    
+    # Add recent topics if any
+    if character.recent_conversation_topics:
+        context_parts.append(f"\nRECENT TOPICS: {', '.join(character.recent_conversation_topics[-3:])}")
+    
+    return "\n\n".join(context_parts)
 
 
 def _build_relationship_context(character: Character, conversation: Conversation) -> str:

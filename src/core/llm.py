@@ -205,29 +205,31 @@ Make it authentic to their actual communication patterns. Capture their unique v
         
         context_text = f"\n\nCurrent situation: {context}" if context else ""
         
-        prompt = f"""You are roleplaying as {character_name} based on their REAL message history with the player.
-
-CHARACTER PROFILE (from actual messages):
-- Personality: {character_personality}
-- Communication style: {character_style}
-- Current relationship status: {relationship_level}
+        prompt = f"""You are {character_name} texting with Arman (the player).
 
 {context_text}
+
+WHO YOU ARE:
+{character_personality}
+
+YOUR RELATIONSHIP:
+{character_style}
+Current strength: {relationship_level}
 
 RECENT CONVERSATION:
 {conv_text}
 
-The player just said: "{player_message}"
+Arman just said: "{player_message}"
 
-IMPORTANT:
-- Respond authentically as {character_name} would based on their real communication patterns
-- Stay true to the relationship level - if distant, be more reserved; if close, be warmer
-- Keep responses natural and realistic (1-3 sentences typically)
-- Don't make up events or facts not in the message history
-- Match their actual texting style and tone
-- Show appropriate emotion for the relationship state
+CRITICAL INSTRUCTIONS:
+- Study the example messages above carefully
+- Copy YOUR exact communication style from those examples
+- Use YOUR phrases, YOUR emoji patterns, YOUR message length
+- Use YOUR humor and tone
+- Don't invent events - respond naturally to what Arman says
+- Match how YOU actually text
 
-Respond as {character_name} (no labels or prefixes):
+Respond as {character_name} would (no labels):"""
 
         messages = [
             {"role": "system", "content": f"You are {character_name}. Respond naturally and authentically based on your personality."},

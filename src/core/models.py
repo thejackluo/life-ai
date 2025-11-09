@@ -6,9 +6,12 @@ These models provide type safety, validation, and easy serialization.
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Literal
+from typing import List, Dict, Optional, Literal, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
+
+if TYPE_CHECKING:
+    from src.core.memory_models import CharacterMemory
 
 
 # ============================================================================
@@ -98,23 +101,29 @@ class Character(BaseModel):
     """
     Represents a character in the game, generated from real contacts.
     Contains AI-generated personality and message history context.
+    
+    Can use either basic or enhanced memory system.
     """
     # Identity
     name: str
     contact_id: str  # Maps to contact in data folder
     
-    # AI-Generated Personality
-    personality_summary: str  # AI-generated from messages
-    communication_style: str  # How they text/speak
-    interests: List[str] = Field(default_factory=list)
-    typical_topics: List[str] = Field(default_factory=list)
+    # PERSONALITY (brief, not complex)
+    personality_brief: str  # One paragraph about who they are
+    relationship_context: str  # One paragraph about your history
+    
+    # THE KEY: ACTUAL MESSAGE EXAMPLES
+    message_examples: List[Dict] = Field(default_factory=list)  # 30-50 real messages
+    
+    # DYNAMIC STATE (simple)
+    current_mood: str = "neutral"
+    recent_conversation_topics: List[str] = Field(default_factory=list)
     
     # Relationship with player
     relationship: Relationship
     
     # Context from real messages
     message_count: int = 0
-    favorite_phrases: List[str] = Field(default_factory=list)
     conversation_llm_path: Optional[str] = None  # Path to conversation_llm.json
     
     # Game state
@@ -127,6 +136,26 @@ class Character(BaseModel):
     def get_relationship_description(self) -> str:
         """Get human-readable relationship description"""
         return f"{self.relationship.level.value.replace('_', ' ').title()} ({self.relationship.strength}/100)"
+    
+    def get_message_examples_text(self, max_examples: Optional[int] = None) -> str:
+        """Format message examples for LLM prompt"""
+        if not self.message_examples:
+            return "No message examples available."
+        
+        # Use all messages if max_examples not specified
+        examples_to_show = self.message_examples if max_examples is None else self.message_examples[:max_examples]
+        
+        formatted = []
+        for i, msg in enumerate(examples_to_show, 1):
+            sender = "YOU" if msg.get('sender') == 'contact' else "ARMAN"
+            content = msg.get('content', '').strip()
+            if content:
+                # Truncate very long messages for readability
+                if len(content) > 300:
+                    content = content[:297] + "..."
+                formatted.append(f"--- EXAMPLE {i} ---\n{sender}: \"{content}\"")
+        
+        return "\n\n".join(formatted)
 
 
 # ============================================================================

@@ -1,353 +1,147 @@
-# Life AI: Your Life as an Interactive Game
+# Life AI - Your Life as a Game
 
-A memory-based life simulation game that transforms your actual relationships, places, and aspirations into an explorable world. Not an escape from reality—a tool for understanding, reflecting on, and strengthening your connection to it.
+A terminal-based life simulation game built from your **real iMessage history**. Talk to AI-powered versions of your friends, make choices that affect relationships, and reflect on your real connections.
 
----
+## What Is This?
 
-## Overview
+Life AI transforms your text message history into a playable game where:
+- Your contacts become game characters grounded in their ACTUAL messages
+- The AI sees their FULL message history - every text, every phrase, every pattern
+- Conversations affect relationship strength based on sentiment analysis  
+- Your words matter - positive messages strengthen bonds, negative ones weaken them
+- Characters respond authentically because they're built from real communication
 
-Life AI creates a persistent, interactive world model of your actual life where:
+## Quick Start
 
-- **Characters are real people you know** - friends, family, mentors, aspirational figures
-- **Locations are actual places** - using real geographic coordinates and distances
-- **Quests emerge from your life patterns** - reflecting relationships and goals
-- **The world remembers and evolves** - actions have consequences, relationships develop
-- **Structure meets freedom** - enough guidance to be engaging, enough openness to feel personal
-
-Unlike AI Dungeon's freeform generation or generic life sims, Life AI grounds every element in your reality while adding game structure that makes life feel intentional and explorable.
-
----
-
-## Vision
-
-### The Core Problem
-
-Modern life creates a paradox: we're more connected than ever, yet we experience profound disconnection from people and places that matter. We lose touch with friends, forget meaningful memories, lack structure for pursuing goals, and struggle to see our lives as narratives with agency.
-
-### Our Solution
-
-Transform your life into an interactive game that helps you:
-
-- **Recognize patterns** in your relationships and choices
-- **Explore possibilities** between current reality and aspirational future
-- **Strengthen connections** through reflection and prompts to action
-- **See structure** in what feels like chaos
-- **Take intentional action** on what matters most
-
----
-
-## Product Versions
-
-### V1: Text-Based MVP
-
-A complete, playable text adventure game with:
-
-- Node-based world representation with real geography
-- AI-generated quests based on relationships and goals
-- Dynamic dialogue with character personalities
-- Resource management (money, time, energy)
-- Relationship progression system
-- Multiple endings based on choices
-- Local AI support (LM Studio) + OpenAI API fallback
-
-**Status:** In Development  
-**Documentation:** [`docs/product/product-v1.md`](docs/product/product-v1.md)
-
-### V2: 2D Visual Experience
-
-Evolution of V1 with rich visual presentation:
-
-- Interactive 2D world map (Godot engine)
-- AI-generated character portraits and location art
-- Visual quest journal and relationship networks
-- Cinematic key moments with music
-- Point-and-click exploration
-- All V1 systems enhanced with visual layer
-
-**Status:** Planned  
-**Documentation:** [`docs/product/product-v2.md`](docs/product/product-v2.md)
-
----
-
-## Key Features
-
-### Personal World Generation
-
-Input 5-10 important people and places from your life. AI generates rich backstories, personalities, and connections, creating a world that feels authentically yours.
-
-### Memory-Based Quests
-
-- **Relationship quests:** "Have coffee with Sarah" or "Reconnect with Mike"
-- **Location quests:** "Try that Korean BBQ place" or "Visit the museum"
-- **Aspirational quests:** "Meet Elon Musk" or "Pitch to Y Combinator"
-- **Personal growth:** "Go to gym 3x this week" or "Finish side project"
-
-### Real Geography Integration
-
-Travel times and costs based on actual distances. Your world's topology reflects the real spatial relationships between places in your life.
-
-### Relationship Dynamics
-
-Every interaction affects relationship strength (0-100). Relationships deepen with investment, fade with neglect—just like real life.
-
-### Meaningful Choices
-
-Structured options (3-5 choices) at decision points. Enough freedom to feel creative, enough structure to maintain momentum. Every choice has consequences.
-
-### Multiple Endings
-
-Your playthrough concludes based on which relationships you invested in, which goals you pursued, and how you balanced different life aspects.
-
----
-
-## Technology Stack
-
-### V1 (Text-Based MVP)
-
-- **Language:** Python 3.10+
-- **AI Integration:** LM Studio (local models) + OpenAI API (fallback)
-- **Data Models:** Pydantic
-- **Configuration:** YAML
-- **External APIs:** Google Maps (coordinates and distances)
-- **Interface:** Rich CLI with colorama
-
-### V2 (2D Visual)
-
-- **Game Engine:** Godot 4.x
-- **Scripting:** GDScript + Python bridge
-- **Asset Generation:** AI-generated (Stable Diffusion, DALL-E, etc.)
-- **Audio:** Dynamic music system, environmental sound
-- **Backend:** V1 Python engine (preserved)
-
----
-
-## Project Structure
-
-```
-life-ai/
-├── app/                          # Application code
-│   ├── core/                     # Game engine core
-│   │   ├── world.py             # World graph management
-│   │   ├── state_machine.py    # Player state tracking
-│   │   ├── character_manager.py # Character system
-│   │   ├── quest_engine.py      # Quest generation
-│   │   └── resources.py         # Resource management
-│   ├── models/                   # Data models
-│   │   ├── place.py
-│   │   ├── character.py
-│   │   ├── relationship.py
-│   │   ├── event.py
-│   │   └── game_state.py
-│   ├── ai/                       # AI integration
-│   │   ├── provider.py          # AI provider abstraction
-│   │   ├── prompts.py           # Prompt engineering
-│   │   └── generators.py        # Generation functions
-│   ├── cli/                      # Text interface (V1)
-│   │   ├── game.py              # Main game loop
-│   │   ├── commands.py          # Command handling
-│   │   └── display.py           # Output formatting
-│   └── godot/                    # 2D environment (V2)
-│       ├── scenes/
-│       ├── scripts/
-│       └── assets/
-├── data/                         # Sample data
-│   ├── characters.json
-│   ├── places.json
-│   ├── relationships.json
-│   └── events.json
-├── docs/                         # Documentation
-│   ├── product/                  # Product vision
-│   │   ├── product-v1.md        # Text-based MVP
-│   │   └── product-v2.md        # 2D visual experience
-│   ├── architecture/             # Technical docs (TBD)
-│   └── general/                  # Meeting notes & context
-├── config/                       # Configuration
-│   ├── game_config.yaml
-│   ├── ai_config.yaml
-│   └── maps_config.yaml
-├── scripts/                      # Utility scripts
-├── requirements.txt              # Python dependencies
-└── README.md                     # This file
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.10 or higher
-- (Optional) LM Studio for local AI models
-- (Optional) OpenAI API key for cloud fallback
-- (Optional) Google Maps API key for location features
-
-### Installation
+### 1. Install Dependencies
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/life-ai.git
-cd life-ai
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Configure settings
-cp config/ai_config.yaml.example config/ai_config.yaml
-# Edit config files with your API keys and preferences
 ```
 
-### Quick Start
+### 2. Set Up OpenAI API Key
+
+Create a `.env` file:
 
 ```bash
-# Run the game (V1 text-based)
-python -m app.cli.game
-
-# Follow the setup wizard to create your world
-# Start playing!
+cp .env.example .env
 ```
 
----
+Edit `.env` and add your OpenAI API key:
+```
+OPENAI_API_KEY=sk-your-key-here
+```
 
-## Development
+### 3. Export Your Messages (if not done already)
 
-### Development Philosophy
+```bash
+python contacts_exporter.py
+```
 
-Based on Jack and Arman's approach:
+This creates a `data/` folder with your exported messages.
 
-- **Start simple, iterate quickly** - Text MVP before 2D
-- **AI-assisted development** - Using Cursor, vMat for planning
-- **Voice-driven prompting** - Natural language workflow
-- **Open source first** - Local models, Godot engine
-- **Build in public** - Share progress and learnings
+### 4. Play the Game!
 
-### Tools Used
+```bash
+python -m src.main
+```
 
-- **Cursor** - AI-assisted coding with voice input
-- **vMat** - Architecture planning and consistency
-- **LM Studio** - Local AI model testing
-- **Godot 4.x** - 2D game engine (V2)
-- **GitHub** - Version control and collaboration
+## How to Play
 
-### Contributing
+### Starting a New Game
 
-This project is currently in early development by Jack and Arman. We're not accepting external contributions yet, but feel free to:
+1. Enter your name
+2. Select 5-10 contacts to become characters (interactive UI)
+3. Wait while AI generates personalities from message history
+4. Start playing!
 
-- Star and watch the repo
-- Open issues for bugs or suggestions
-- Share your thoughts and ideas
-- Follow development progress
+### Commands
 
----
+- `talk [name]` or `t [name]` - Start a conversation
+- `status` or `stats` - Check your current state
+- `characters` or `c` - See all characters and relationships
+- `quests` or `q` - View available quests
+- `save` - Save your game
+- `load` - Load a saved game
+- `help` - Show all commands
+- `quit` - Exit (auto-saves)
 
-## Roadmap
+### Having Conversations
 
-### Phase 1: Foundation (Current)
+Type anything! The AI will respond based on the character's real personality from your messages.
 
-- [x] Project structure setup
-- [x] Product vision documents (V1 & V2)
-- [ ] Core data models implementation
-- [ ] World graph and state machine
-- [ ] AI provider abstraction layer
+- Your **words affect relationships** (sentiment analysis in real-time)
+- Positive messages: +5 to +15 relationship points
+- Negative messages: -5 to -15 relationship points
+- Type `bye`, `quit`, or `exit` to end conversation
 
-### Phase 2: Text MVP (V1)
+### Understanding Relationships
 
-- [ ] Character and quest systems
-- [ ] CLI interface and commands
-- [ ] Resource management
-- [ ] Save/load functionality
-- [ ] Sample data and testing
-- [ ] Beta testing with 20-50 users
+- **0-20**: Stranger
+- **21-40**: Acquaintance  
+- **41-60**: Friend
+- **61-80**: Close Friend
+- **81-100**: Best Friend
 
-### Phase 3: 2D Foundation (V2)
+## How It Works
 
-- [ ] Godot project setup
-- [ ] Python-Godot bridge
-- [ ] Basic world map rendering
-- [ ] Character portrait generation
-- [ ] Location scene generation
+### The Key Innovation: Full Message History
 
-### Phase 4: Visual Polish (V2)
+Unlike traditional chatbots, Life AI shows the LLM **every single message** from your real conversation history. For a contact with 1000 messages, the AI sees all 1000 - learning their exact communication style, phrases, humor, and patterns.
 
-- [ ] Full UI implementation
-- [ ] Music and sound design
-- [ ] Cinematic moments
-- [ ] Animation and effects
-- [ ] Performance optimization
+**Example:** If Ryan says "bro" in 80% of his messages, the AI will use "bro" naturally because it's seen the pattern in hundreds of real examples.
 
-### Phase 5: Launch
+### Cost & Performance
 
-- [ ] Marketing materials
-- [ ] Documentation completion
-- [ ] Community building
-- [ ] Public release
+**Character Generation:** ~15 seconds per character, ~$0.03  
+**Conversations:** ~$0.30-0.50 per conversation (varies by message count)  
+**Why the cost?** We send the full message history (500-2000 messages) with every response for maximum authenticity.
 
----
+**For demo/testing purposes, this cost is acceptable. For production, we could optimize with message sampling.**
 
-## Philosophy
+## Technical Details
 
-### Success = Hard Work + Leverage + Luck
+### Architecture
 
-As discussed in the founding meeting, success isn't just about individual effort. Life AI embodies this philosophy:
+```
+src/
+├── core/              # Foundation
+│   ├── models.py      # Pydantic data models (simplified)
+│   ├── llm.py         # OpenAI integration
+│   └── sentiment.py   # Sentiment analysis
+│
+├── game/              # Game systems
+│   ├── character_selector.py  # Choose contacts (1-20 characters)
+│   ├── character_gen.py       # Load full message history
+│   ├── message_sampler.py     # Message loading utilities
+│   ├── conversation.py        # Free-form dialogue with full context
+│   ├── quest_system.py        # Quest generation
+│   ├── resource_manager.py   # Resources (MVP)
+│   └── save_load.py           # Persistence
+│
+└── main.py            # Game entry point
+```
 
-- **Hard work:** The game respects effort and investment
-- **Leverage:** Shows how connections and relationships create opportunities
-- **Luck:** Acknowledges randomness while revealing controllable pathways
+### Tech Stack
 
-### Life as a Game with Side Quests
+- **Python 3.11+**
+- **OpenAI GPT-4o** - Character personalities and responses
+- **vaderSentiment** - Real-time sentiment analysis
+- **Pydantic** - Type-safe data models
+- **JSON** - Save game format
 
-"Everyone views the world as a game with infinite possibilities. Complete all the side quests."
+## Project Status
 
-Life AI helps you see your life as a game—not to trivialize it, but to recognize agency, structure, and the importance of side quests alongside main goals.
+**Current:** V1 Terminal MVP ✅  
+**Next:** V2 2D Visual Experience (Godot) 🚧
 
-### Technology That Strengthens Human Connection
+See `docs/ARCHITECTURE-SUMMARY.md` and `docs/product/product-v2.md` for roadmap.
 
-AI should help us understand and connect with each other better, not replace human interaction. Life AI uses AI to create reflection that prompts real-world connection.
+## Credits
 
----
-
-## Inspiration & Context
-
-Life AI was conceived during a hackathon planning session between Jack and Arman, inspired by:
-
-- **Google's Genie 3** - World generation with memory
-- **AI Dungeon** - But with structure and persistence
-- **Life simulation games** - But personal and meaningful
-- **The "leverage" concept** - Understanding pathways to success
-- **Disconnection problem** - Modern life's relationship challenges
-
-See [`docs/general/life-ai-raw-meeting.md`](docs/general/life-ai-raw-meeting.md) for full context.
-
----
+Built with the BMAD Method for agentic software development.
 
 ## License
 
-[License information to be added]
+See LICENSE file.
 
----
-
-## Contact
-
-- **Jack** - Project lead, architecture
-- **Arman** - Collaboration, design input
-
-For inquiries: [contact information]
-
----
-
-## Acknowledgments
-
-Special thanks to:
-
-- The AI research community for making this possible
-- Google's Genie 3 team for inspiration
-- The open-source Godot community
-- LM Studio and Suno teams
-- Everyone building tools that help us understand ourselves better
-
----
-
-**Remember:** This is your life as a game. What side quests will you complete?

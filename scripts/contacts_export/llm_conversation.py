@@ -13,7 +13,7 @@ from dateutil.parser import parse
 import emoji
 
 # Import privacy functionality
-from privacy_handler import (
+from .privacy_handler import (
     ANONYMIZE_LLM_DATA,
     RECENT_INTERACTIONS_COUNT,
     anonymize_data_for_llm,

@@ -10,19 +10,19 @@ import os
 from datetime import datetime
 
 # Import from our specialized modules
-from privacy_handler import (
+from .privacy_handler import (
     set_privacy_enabled,
     reset_person_mapping,
     ANONYMIZE_LLM_DATA,
     RECENT_INTERACTIONS_FILENAME
 )
-from llm_conversation import (
+from .llm_conversation import (
     create_llm_conversation_file,
     create_llm_master_files,
     optimize_messages_for_llm,
     generate_conversation_metadata
 )
-from recent_interactions import (
+from .recent_interactions import (
     create_recent_interactions_file
 )
 

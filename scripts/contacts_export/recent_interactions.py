@@ -12,7 +12,7 @@ from datetime import datetime
 from dateutil.parser import parse
 
 # Import privacy functionality
-from privacy_handler import (
+from .privacy_handler import (
     ANONYMIZE_LLM_DATA,
     RECENT_INTERACTIONS_COUNT,
     RECENT_INTERACTIONS_FILENAME,

@@ -47,6 +47,9 @@ class LifeAIGame:
             'chars': self.cmd_list_characters,
             'c': self.cmd_list_characters,
             
+            'profile': self.cmd_view_profile,
+            'memory': self.cmd_view_profile,
+            
             'quests': self.cmd_list_quests,
             'q': self.cmd_list_quests,
             
@@ -94,10 +97,11 @@ class LifeAIGame:
             print("\n  No characters selected. Exiting...")
             return False
         
-        print(f"\n  Generating characters from your message history...")
-        print(f"  This may take a minute...\n")
+        print(f"\n  Generating characters from your FULL message history...")
+        print(f"  (Using complete message history for maximum authenticity)")
+        print(f"  This will take ~{len(selected_contacts) * 15 // 60} minutes.\n")
         
-        # Generate characters with AI personalities
+        # Generate characters with message-grounded approach
         characters = generate_game_characters(selected_contacts, verbose=True)
         
         # Create game state
@@ -204,6 +208,7 @@ class LifeAIGame:
         print("\n  INFORMATION:")
         print("    status, stats           - Show your current status")
         print("    characters, chars, c    - List all characters and relationships")
+        print("    profile [name], memory  - View character's deep profile (if enhanced)")
         print("    quests, q               - List active quests")
         print("\n  MOVEMENT:")
         print("    travel [place], go [place] - Travel to a location")
@@ -254,6 +259,53 @@ class LifeAIGame:
         """Show current status"""
         print(self.game_state.get_summary())
     
+    def cmd_view_profile(self, args: str):
+        """View a character's profile"""
+        if not args:
+            print("\n  Who's profile do you want to view? Use: profile [name]")
+            return
+        
+        # Find character
+        query = args.lower()
+        matches = [c for c in self.game_state.characters.values() if query in c.name.lower()]
+        
+        if not matches:
+            print(f"\n  ⚠️  No character found matching '{args}'")
+            return
+        
+        if len(matches) > 1:
+            print(f"\n  Multiple matches. Please be more specific:")
+            for char in matches:
+                print(f"    - {char.name}")
+            return
+        
+        character = matches[0]
+        
+        print("\n" + "="*70)
+        print(f"  CHARACTER PROFILE: {character.name}")
+        print("="*70)
+        
+        print(f"\n  Based on: {character.message_count} messages")
+        print(f"  Message samples: {len(character.message_examples)} examples loaded")
+        
+        print(f"\n  📖 PERSONALITY:")
+        print(f"  {character.personality_brief}")
+        
+        print(f"\n  📜 RELATIONSHIP CONTEXT:")
+        print(f"  {character.relationship_context}")
+        
+        print(f"\n  💬 MESSAGE STYLE EXAMPLES:")
+        for i, msg in enumerate(character.message_examples[:5], 1):
+            sender = "THEM" if msg.get('sender') == 'contact' else "YOU"
+            content = msg.get('content', '')[:80]
+            print(f"  {i}. {sender}: \"{content}...\"")
+        
+        print(f"\n  💭 CURRENT STATE:")
+        print(f"  Mood: {character.current_mood}")
+        print(f"  Recent topics: {', '.join(character.recent_conversation_topics) if character.recent_conversation_topics else 'None yet'}")
+        
+        print("\n" + "="*70 + "\n")
+    
     def cmd_list_characters(self, args: str):
         """List all characters and their relationships"""
         print("\n" + "="*70)
@@ -275,7 +327,7 @@ class LifeAIGame:
             
             print(f"  {char.name}")
             print(f"    {bar} {rel.strength}/100 ({rel.level.value.replace('_', ' ').title()})")
-            print(f"    {char.personality_summary[:60]}...")
+            print(f"    {char.personality_brief[:60]}...")
             print()
         
         print("="*70 + "\n")

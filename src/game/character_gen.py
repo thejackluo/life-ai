@@ -12,8 +12,9 @@ from typing import Dict, List, Optional
 from datetime import datetime
 
 from src.core.models import Character, Relationship, RelationshipLevel
-from src.core.llm import generate_character
+from src.core.llm import get_llm_client
 from src.game.character_selector import ContactData
+from src.game.message_sampler import sample_character_messages
 
 
 class CharacterGenerator:
@@ -104,78 +105,74 @@ class CharacterGenerator:
         verbose: bool = True
     ) -> Character:
         """
-        Generate a full Character object from a ContactData.
+        Generate a Character with message-grounded personality.
         
         Args:
             contact: ContactData from character selector
             verbose: Print progress messages
             
         Returns:
-            Character object with AI-generated personality
+            Character object with actual message examples
         """
         if verbose:
-            print(f"\n  🎭 Generating character: {contact.name}...")
-            print(f"     Analyzing {contact.message_count} messages...")
+            print(f"\n  🎭 Creating character: {contact.name}...")
+            print(f"     Sampling from {contact.message_count} messages...")
         
         # Load full contact data
         try:
             data = self._load_contact_data(contact)
         except FileNotFoundError as e:
             print(f"  ⚠️  Error loading data for {contact.name}: {e}")
-            # Return minimal character
             return self._create_fallback_character(contact)
         
         conv_data = data['conversation']
         messages = conv_data.get('messages', [])
         metadata = conv_data.get('conversation_metadata', {})
         
+        # Use full message history (no sampling)
         if verbose:
-            print(f"     Generating AI personality...")
+            print(f"     Loading full message history...")
         
-        # Generate personality using LLM
+        sample_data = sample_character_messages(messages, use_full_history=True)
+        message_samples = sample_data['samples']
+        
+        if verbose:
+            print(f"     ✓ Loaded {len(message_samples)} messages (full history)")
+        
+        # Generate brief personality and context (ONE quick LLM call)
+        if verbose:
+            print(f"     Generating brief personality context...")
+        
         try:
-            personality = generate_character(
-                contact_name=contact.name,
-                message_history=messages,
-                metadata=metadata
+            profile_text = self._generate_brief_profile(
+                contact.name, 
+                message_samples,
+                metadata
             )
         except Exception as e:
-            print(f"  ⚠️  Error generating personality: {e}")
-            print(f"     Using fallback personality...")
-            personality = self._create_fallback_personality(contact.name)
-        
-        # Extract personality components
-        personality_summary = personality.get('personality_summary', f"{contact.name} is a friend.")
-        communication_style = personality.get('communication_style', 'casual and friendly')
-        interests = personality.get('interests', [])
-        typical_topics = personality.get('typical_topics', [])
-        favorite_phrases = personality.get('favorite_phrases', [])
-        
-        if verbose:
-            print(f"     ✓ Personality: {personality_summary[:60]}...")
-            print(f"     ✓ Style: {communication_style}")
-            print(f"     ✓ Interests: {', '.join(interests[:3])}")
+            print(f"  ⚠️  Error generating profile: {e}")
+            profile_text = self._create_fallback_profile_text(contact.name)
         
         # Determine initial relationship
         relationship = self._determine_initial_relationship(contact.message_count)
         relationship.character_name = contact.name
         
         if verbose:
+            print(f"     ✓ Profile: {len(profile_text['personality'])} chars")
+            print(f"     ✓ Context: {len(profile_text['context'])} chars")
             print(f"     ✓ Relationship: {relationship.level.value.replace('_', ' ').title()} ({relationship.strength}/100)")
         
         # Create Character object
         character = Character(
             name=contact.name,
-            contact_id=contact.name,  # Using name as ID for now
-            personality_summary=personality_summary,
-            communication_style=communication_style,
-            interests=interests,
-            typical_topics=typical_topics,
-            favorite_phrases=favorite_phrases,
+            contact_id=contact.name,
+            personality_brief=profile_text['personality'],
+            relationship_context=profile_text['context'],
+            message_examples=message_samples,
             relationship=relationship,
             message_count=contact.message_count,
             conversation_llm_path=data['conv_file_path'],
-            current_location="Home",  # Default location
+            current_location="Home",
             available_for_conversation=True
         )
         
@@ -183,6 +180,77 @@ class CharacterGenerator:
             print(f"  ✅ Character ready: {contact.name}\n")
         
         return character
+    
+    def _generate_brief_profile(
+        self,
+        contact_name: str,
+        message_samples: List[Dict],
+        metadata: Dict
+    ) -> Dict[str, str]:
+        """
+        Generate brief personality and relationship context via LLM.
+        ONE fast call, ~200 words each.
+        """
+        # Format a few examples for the prompt
+        examples_text = []
+        for msg in message_samples[:15]:  # Just show first 15 for prompt
+            sender = "THEM" if msg.get('sender') == 'contact' else "YOU"
+            content = msg.get('content', '').strip()[:150]  # Truncate long ones
+            if content:
+                examples_text.append(f"{sender}: {content}")
+        
+        examples = "\n".join(examples_text)
+        
+        prompt = f"""Analyze these real text messages between Arman and {contact_name}.
+
+MESSAGE SAMPLES:
+{examples}
+
+Metadata: {metadata.get('total_messages', 0)} total messages over {metadata.get('conversation_span_days', 0)} days
+
+Create TWO brief descriptions:
+
+1. PERSONALITY (one paragraph, ~100-150 words):
+   Who is {contact_name}? What are they like based on how they actually communicate?
+
+2. RELATIONSHIP CONTEXT (one paragraph, ~100-150 words):
+   What's the relationship between Arman and {contact_name}? How do they interact?
+
+Keep it concise and grounded in the actual messages. Focus on communication style and patterns.
+
+Return as JSON:
+{{
+  "personality": "...",
+  "context": "..."
+}}"""
+
+        client = get_llm_client()
+        response = client._call_api(
+            messages=[
+                {"role": "system", "content": "You create brief, accurate profiles from message data."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=500
+        )
+        
+        # Parse response
+        try:
+            json_start = response.find('{')
+            json_end = response.rfind('}') + 1
+            if json_start != -1 and json_end > json_start:
+                return json.loads(response[json_start:json_end])
+            return json.loads(response)
+        except:
+            # Fallback
+            return self._create_fallback_profile_text(contact_name)
+    
+    def _create_fallback_profile_text(self, contact_name: str) -> Dict[str, str]:
+        """Create fallback profile text"""
+        return {
+            'personality': f"{contact_name} is someone you communicate with regularly. Based on message history, they seem friendly and engaged.",
+            'context': f"You have an ongoing relationship with {contact_name}. Your communication has been consistent over time."
+        }
     
     def _create_fallback_personality(self, contact_name: str) -> Dict:
         """Create a basic fallback personality when AI generation fails"""
@@ -196,17 +264,16 @@ class CharacterGenerator:
     
     def _create_fallback_character(self, contact: ContactData) -> Character:
         """Create a minimal fallback character when data is missing"""
-        personality = self._create_fallback_personality(contact.name)
+        profile_text = self._create_fallback_profile_text(contact.name)
         relationship = self._determine_initial_relationship(contact.message_count)
         relationship.character_name = contact.name
         
         return Character(
             name=contact.name,
             contact_id=contact.name,
-            personality_summary=personality['personality_summary'],
-            communication_style=personality['communication_style'],
-            interests=personality['interests'],
-            typical_topics=personality['typical_topics'],
+            personality_brief=profile_text['personality'],
+            relationship_context=profile_text['context'],
+            message_examples=[],
             relationship=relationship,
             message_count=contact.message_count,
             current_location="Home",
@@ -230,7 +297,12 @@ class CharacterGenerator:
         """
         if verbose:
             print(f"\n{'='*70}")
-            print(f"  GENERATING {len(contacts)} CHARACTERS")
+            print(f"  GENERATING {len(contacts)} CHARACTERS (FULL MESSAGE HISTORY)")
+            est_time = len(contacts) * 15
+            est_cost = len(contacts) * 0.03
+            print(f"  Generation time: ~{est_time} seconds (~{est_time // 60} minutes)")
+            print(f"  Generation cost: ~${est_cost:.2f}")
+            print(f"  Note: Using full message history in conversations (~$0.30-0.50 per conversation)")
             print(f"{'='*70}")
         
         characters = []
@@ -267,7 +339,6 @@ def generate_game_characters(
         contacts: List of ContactData from character selector
         data_folder: Path to exported contact data
         verbose: Print progress messages
-        
         
     Returns:
         List of Character objects ready for game
